@@ -120,15 +120,37 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load from LocalStorage if exists
+  // Load from LocalStorage if exists and auto-merge any new defaults
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('mds_products');
-    return saved ? JSON.parse(saved) : initialProducts;
+    if (saved) {
+      const parsed: Product[] = JSON.parse(saved);
+      const missingInitial = initialProducts.filter((initP) => !parsed.some((p) => p.id === initP.id));
+      if (missingInitial.length > 0) {
+        const merged = [...parsed, ...missingInitial];
+        localStorage.setItem('mds_products', JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    }
+    return initialProducts;
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('mds_categories');
-    return saved ? JSON.parse(saved) : initialCategories;
+    if (saved) {
+      const parsed: Category[] = JSON.parse(saved);
+      const missingInitial = initialCategories.filter(
+        (initCat) => !parsed.some((c) => c.id === initCat.id || c.name === initCat.name)
+      );
+      if (missingInitial.length > 0) {
+        const merged = [...parsed, ...missingInitial];
+        localStorage.setItem('mds_categories', JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    }
+    return initialCategories;
   });
 
   const [contactConfig, setContactConfig] = useState<ContactConfig>(() => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, Eye, Phone, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,15 @@ export const MasonryGrid: React.FC = () => {
   } = useApp();
 
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('all');
+
+  // Strict Hierarchy Resolver: Only parent categories (Level 1) displayed on homepage filter bar
+  const parentCats = useMemo(() => {
+    return categories.filter((c) => {
+      if (!c.parentId || c.parentId === 'none' || c.parentId === '') return true;
+      const parentExists = categories.some((p) => p.id === c.parentId && p.id !== c.id);
+      return !parentExists;
+    });
+  }, [categories]);
 
   const filteredProducts = activeCategoryFilter === 'all'
     ? products
@@ -61,7 +70,7 @@ export const MasonryGrid: React.FC = () => {
             Tất Cả Sưu Tập ({products.length})
           </button>
 
-          {categories.map((cat) => (
+          {parentCats.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategoryFilter(cat.id)}

@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Sparkles, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const CategorySection: React.FC = () => {
   const { categories, setActiveTab, setSelectedCategoryFilter } = useApp();
+
+  // Strict Hierarchy Resolver: Only parent categories (Level 1) displayed on main grid
+  const parentCats = useMemo(() => {
+    return categories.filter((c) => {
+      if (!c.parentId || c.parentId === 'none' || c.parentId === '') return true;
+      const parentExists = categories.some((p) => p.id === c.parentId && p.id !== c.id);
+      return !parentExists;
+    });
+  }, [categories]);
 
   const handleCategoryClick = (catSlug: string) => {
     setSelectedCategoryFilter(catSlug);
@@ -31,7 +40,7 @@ export const CategorySection: React.FC = () => {
 
       {/* Large Grid of Category Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {categories.map((cat, index) => (
+        {parentCats.map((cat, index) => (
           <motion.div
             key={cat.id}
             initial={{ opacity: 0, y: 30 }}

@@ -48,6 +48,35 @@ export const initialCategories: Category[] = [
     image: 'https://images.pexels.com/photos/31247125/pexels-photo-31247125.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
     description: 'Mấn đính ngọc trai, khăn voan thêu viền, vương miện hoàng gia, cà vạt lụa & hoa cài áo thủ công.',
     itemCount: 25
+  },
+  {
+    id: 'cat-7',
+    name: 'Đồng phục công sở',
+    slug: 'dong-phuc-cong-so',
+    image: 'https://images.pexels.com/photos/7697450/pexels-photo-7697450.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+    description: 'Bộ sưu tập đồng phục công sở nam nữ may đo lịch lãm, hiện đại, chuẩn phom dáng doanh nghiệp.',
+    itemCount: 16,
+    level: 1
+  },
+  {
+    id: 'cat-7-1',
+    name: 'Đồng phục công sở nữ',
+    slug: 'dong-phuc-cong-so-nu',
+    image: 'https://images.pexels.com/photos/7697450/pexels-photo-7697450.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+    description: 'Áo sơ mi lụa, blazer & đầm công sở nữ may đo tôn dáng sang trọng.',
+    itemCount: 8,
+    parentId: 'cat-7',
+    level: 2
+  },
+  {
+    id: 'cat-7-2',
+    name: 'Đồng phục công sở nam',
+    slug: 'dong-phuc-cong-so-nam',
+    image: 'https://images.pexels.com/photos/33381481/pexels-photo-33381481.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+    description: 'Sơ mi nam & âu phục công sở chuẩn phong thái doanh nhân.',
+    itemCount: 8,
+    parentId: 'cat-7',
+    level: 2
   }
 ];
 
@@ -441,6 +470,71 @@ export const initialProducts: Product[] = [
     isNew: false,
     rating: 5.0,
     viewCount: 640
+  },
+  {
+    id: 'prod-7-1',
+    sku: 'DP-NU-LUX-01',
+    title: 'Đồng Phục Sơ Mi Lụa & Vest Nữ Công Sở Executive',
+    slug: 'dong-phuc-so-mi-lua-vest-nu-cong-so',
+    categoryId: 'cat-7-1',
+    categoryName: 'Đồng phục công sở nữ',
+    salePrice: 3500000,
+    rentalPrice: 850000,
+    rentalDeposit: 1500000,
+    mainImage: 'https://images.pexels.com/photos/7697450/pexels-photo-7697450.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+    images: [
+      'https://images.pexels.com/photos/7697450/pexels-photo-7697450.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+      'https://images.pexels.com/photos/26741263/pexels-photo-26741263.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800'
+    ],
+    sizes: ['S', 'M', 'L', 'XL', 'May đo'],
+    colors: ['Trắng Cream', 'Xanh Paste', 'Đen Thanh Lịch'],
+    material: 'Lụa Mango Cao Cấp & Tuýt Si Hàn Quốc Chống Nhăn',
+    style: 'Doanh Nhân Nữ Hiện Đại',
+    occasion: 'Đồng Phục Công Ty, Hội Nghị, Gặp Đối Tác',
+    description: 'Set đồng phục công sở nữ cao cấp gồm áo sơ mi lụa mềm mại kết hợp áo vest blazer chiết eo chuẩn phom. Chất liệu chống nhăn thoáng mát cả ngày dài.',
+    highlightFeatures: [
+      'Chất liệu lụa Mango cao cấp mềm mịn và mát dịu làn da',
+      'Phom may chiết eo tỉ mỉ giúp tôn vóc dáng nữ công sở',
+      'Áo vest 2 lớp đứng phom lịch sự sang trọng'
+    ],
+    careInstructions: 'Giặt máy chế độ nhẹ hoặc giặt tay. Ủi hơi nước nhiệt độ vừa.',
+    status: 'In Stock',
+    featured: true,
+    isNew: true,
+    rating: 5.0,
+    viewCount: 980
+  },
+  {
+    id: 'prod-7-2',
+    sku: 'DP-NAM-LUX-02',
+    title: 'Set Đồng Phục Sơ Mi & Suit Nam Công Sở Premium',
+    slug: 'set-dong-phuc-so-mi-suit-nam-cong-so',
+    categoryId: 'cat-7-2',
+    categoryName: 'Đồng phục công sở nam',
+    salePrice: 4200000,
+    rentalPrice: 950000,
+    rentalDeposit: 2000000,
+    mainImage: 'https://images.pexels.com/photos/33381481/pexels-photo-33381481.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800',
+    images: [
+      'https://images.pexels.com/photos/33381481/pexels-photo-33381481.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800'
+    ],
+    sizes: ['S', 'M', 'L', 'XL', 'May đo'],
+    colors: ['Trắng Tinh Khôi', 'Xanh Navy', 'Ghi Sáng'],
+    material: 'Vải Kate Bamboo Kháng Khuẩn & Wool Pha Cao Cấp',
+    style: 'Doanh Nhân Nam Lịch Lãm',
+    occasion: 'Đồng Phục Văn Phòng, Sự Kiện Doanh Nghiệp',
+    description: 'Đồng phục công sở nam phong cách Châu Âu hiện đại. Áo sơ mi Bamboo chống nhăn tuyệt đối kết hợp quần âu & áo vest sang trọng.',
+    highlightFeatures: [
+      'Chất vải Sơ mi Bamboo sợi tre thiên nhiên thoáng khí',
+      'Quần âu may may đo đứng dáng chống nhăn nếp',
+      'Phù hợp may đo số lượng lớn cho tập đoàn & công ty'
+    ],
+    careInstructions: 'Giặt nhẹ, giặt khô hấp nhẹ định hình phom dáng.',
+    status: 'In Stock',
+    featured: true,
+    isNew: true,
+    rating: 5.0,
+    viewCount: 1150
   }
 ];
 
