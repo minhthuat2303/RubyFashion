@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, Eye, Calendar, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Eye, Phone, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const MasonryGrid: React.FC = () => {
@@ -8,7 +8,7 @@ export const MasonryGrid: React.FC = () => {
     products,
     categories,
     openProductModal,
-    openBookingModal,
+    openQuickContactModal,
     setActiveTab
   } = useApp();
 
@@ -127,11 +127,11 @@ export const MasonryGrid: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        openBookingModal(product.sku);
+                        openQuickContactModal(product.sku);
                       }}
                       className="px-5 py-2.5 rounded-full gold-gradient-bg text-white text-xs font-semibold uppercase tracking-wider shadow-xl hover:scale-105 transition-transform inline-flex items-center gap-2"
                     >
-                      <Calendar className="w-4 h-4" /> Đặt Thuê Ngay
+                      <Phone className="w-4 h-4" /> Liên Hệ Ngay
                     </button>
                   </div>
                 </div>

@@ -5,7 +5,7 @@ import {
   Search,
   Filter,
   Eye,
-  Calendar,
+  Phone,
   SlidersHorizontal,
   CheckCircle2,
   Grid,
@@ -24,7 +24,7 @@ export const CollectionPage: React.FC = () => {
     selectedCategoryFilter,
     setSelectedCategoryFilter,
     openProductModal,
-    openBookingModal
+    openQuickContactModal
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -549,11 +549,11 @@ export const CollectionPage: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          openBookingModal(product.sku);
+                          openQuickContactModal(product.sku);
                         }}
                         className="w-full py-2.5 rounded-xl gold-gradient-bg text-white text-xs font-semibold uppercase tracking-wider shadow-lg hover:scale-105 transition-transform inline-flex items-center justify-center gap-2"
                       >
-                        <Calendar className="w-4 h-4" /> Đặt Thuê Ngay
+                        <Phone className="w-4 h-4" /> Liên Hệ Ngay
                       </button>
                     </div>
                   </div>

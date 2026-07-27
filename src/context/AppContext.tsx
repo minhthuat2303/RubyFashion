@@ -76,6 +76,11 @@ interface AppContextType {
   openBookingModal: (productSku?: string) => void;
   closeBookingModal: () => void;
   
+  isQuickContactOpen: boolean;
+  quickContactSku: string | null;
+  openQuickContactModal: (productSku?: string) => void;
+  closeQuickContactModal: () => void;
+  
   isSearchModalOpen: boolean;
   setIsSearchModalOpen: (open: boolean) => void;
   
@@ -273,6 +278,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
   const [bookingProductSku, setBookingProductSku] = useState<string | null>(null);
+  const [isQuickContactOpen, setIsQuickContactOpen] = useState<boolean>(false);
+  const [quickContactSku, setQuickContactSku] = useState<string | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
   const [isSEOModalOpen, setIsSEOModalOpen] = useState<boolean>(false);
 
@@ -401,6 +408,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const closeBookingModal = () => {
     setIsBookingModalOpen(false);
     setBookingProductSku(null);
+  };
+
+  const openQuickContactModal = (productSku?: string) => {
+    if (productSku) {
+      setQuickContactSku(productSku);
+    } else {
+      setQuickContactSku(null);
+    }
+    setIsQuickContactOpen(true);
+  };
+
+  const closeQuickContactModal = () => {
+    setIsQuickContactOpen(false);
+    setQuickContactSku(null);
   };
 
   // Admin Login
@@ -538,6 +559,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         bookingProductSku,
         openBookingModal,
         closeBookingModal,
+        isQuickContactOpen,
+        quickContactSku,
+        openQuickContactModal,
+        closeQuickContactModal,
         isSearchModalOpen,
         setIsSearchModalOpen,
         isSEOModalOpen,

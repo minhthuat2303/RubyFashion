@@ -3,13 +3,11 @@ import { useApp } from '../../context/AppContext';
 import {
   Phone,
   Search,
-  Calendar,
   Menu,
   X,
   Sparkles,
   Clock,
-  ChevronDown,
-  Layers
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,20 +16,26 @@ export const Navbar: React.FC = () => {
     activeTab,
     setActiveTab,
     categories,
+    selectedCategoryFilter,
     setSelectedCategoryFilter,
     contactConfig,
-    openBookingModal,
+    openQuickContactModal,
     setIsSearchModalOpen
   } = useApp();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileCollectionOpen, setIsMobileCollectionOpen] = useState(false);
+  const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30);
+      if (window.scrollY > 30) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -39,17 +43,24 @@ export const Navbar: React.FC = () => {
   const navItems = [
     { id: 'home', label: 'Trang Chủ' },
     { id: 'collection', label: 'Bộ Sưu Tập' },
-    { id: 'about', label: 'Giới Thiệu' },
     { id: 'services', label: 'Dịch Vụ' },
     { id: 'rental-guide', label: 'Bảng Giá & Quy Trình' },
+    { id: 'about', label: 'Về Chúng Tôi' },
     { id: 'contact', label: 'Liên Hệ' }
   ];
 
-  const handleNavClick = (tabId: any) => {
-    setActiveTab(tabId);
+  const handleNavClick = (tabId: string) => {
+    setActiveTab(tabId as any);
     setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const toggleCategoryExpand = (catId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedCats((prev) => ({ ...prev, [catId]: !prev[catId] }));
+  };
+
+  const parentCats = categories.filter((c) => !c.parentId || c.parentId === 'none' || c.level === 1);
+  const getSubCats = (parentId: string) => categories.filter((c) => c.parentId === parentId);
 
   return (
     <>
@@ -88,15 +99,24 @@ export const Navbar: React.FC = () => {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Mobile Left Hamburger Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="lg:hidden p-2 rounded-xl text-[#1A1A1A] hover:bg-amber-100/50 transition-colors"
+            title="Mở danh mục menu"
+          >
+            <Menu className="w-6 h-6 text-stone-900" />
+          </button>
+
           {/* Logo */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex flex-col text-left group"
+            className="flex flex-col items-center sm:items-start text-center sm:text-left group cursor-pointer"
           >
-            <span className="font-serif-title text-2xl sm:text-3xl font-bold tracking-widest text-[#111111] group-hover:text-[#B8860B] transition-colors">
+            <h1 className="font-serif-title text-xl sm:text-2xl font-bold tracking-widest text-[#111111] group-hover:text-[#B8860B] transition-colors">
               MAISON DE SOIE
-            </span>
-            <span className="text-[9px] sm:text-[10px] tracking-[0.35em] text-[#C5A059] uppercase font-light">
+            </h1>
+            <span className="text-[10px] text-[#B8860B] uppercase tracking-[0.25em] font-medium -mt-1">
               Haute Couture • Vietnam
             </span>
           </button>
@@ -139,172 +159,187 @@ export const Navbar: React.FC = () => {
               <Search className="w-5 h-5 text-[#2C2C2C]" />
             </button>
 
-            {/* Book Appointment CTA */}
+            {/* Quick Contact Action Trigger */}
             <button
-              onClick={() => openBookingModal()}
+              onClick={() => openQuickContactModal()}
               className="hidden sm:inline-flex items-center gap-2 gold-gradient-bg text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <Calendar className="w-3.5 h-3.5" />
-              Đặt Lịch Tư Vấn VIP
-            </button>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-[#1A1A1A] hover:bg-amber-100/50 transition-colors"
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <Phone className="w-3.5 h-3.5" />
+              Liên Hệ Ngay
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Drawer Navigation */}
+      {/* LEFT OFF-CANVAS SLIDE DRAWER */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-b border-amber-200/60 z-30 overflow-hidden shadow-xl"
-          >
-            <div className="px-6 py-6 space-y-4">
-              {navItems.map((item) => {
-                if (item.id === 'collection') {
-                  return (
-                    <div key={item.id} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <button
-                          onClick={() => {
-                            setSelectedCategoryFilter('all');
-                            handleNavClick('collection');
-                          }}
-                          className={`text-left py-2.5 text-base font-serif-title tracking-wider ${
-                            activeTab === 'collection'
-                              ? 'text-[#B8860B] font-bold border-l-2 border-[#D4AF37] pl-3'
-                              : 'text-[#2C2C2C] pl-3 hover:text-[#B8860B]'
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                        <button
-                          onClick={() => setIsMobileCollectionOpen(!isMobileCollectionOpen)}
-                          className="p-2 text-amber-800 hover:bg-amber-100/60 rounded-lg flex items-center gap-1 text-xs font-semibold"
-                        >
-                          <Layers className="w-4 h-4 text-[#B8860B]" />
-                          <span>Danh mục</span>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              isMobileCollectionOpen ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-                      </div>
+          <div className="fixed inset-0 z-50 lg:hidden">
+            {/* Dark Dim Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            />
 
-                      {/* Mobile Category List */}
-                      {isMobileCollectionOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="pl-6 pr-2 py-2 space-y-1.5 bg-amber-50/60 rounded-2xl border border-amber-200/50 my-1"
-                        >
-                          <button
-                            onClick={() => {
-                              setSelectedCategoryFilter('all');
-                              handleNavClick('collection');
-                            }}
-                            className="w-full text-left py-1.5 px-3 rounded-xl text-xs font-semibold text-stone-800 hover:bg-amber-100 flex items-center justify-between"
-                          >
-                            <span>Tất Cả Sản Phẩm</span>
-                            <span className="text-[10px] text-amber-700 font-mono font-normal">Xem tất cả</span>
-                          </button>
-                          {categories
-                            .filter((c) => !c.parentId || c.parentId === 'none' || c.level === 1)
-                            .map((parent) => {
-                              const subs = categories.filter((c) => c.parentId === parent.id);
-                              return (
-                                <div key={parent.id} className="space-y-1">
-                                  <button
-                                    onClick={() => {
-                                      setSelectedCategoryFilter(parent.id);
-                                      handleNavClick('collection');
-                                    }}
-                                    className="w-full text-left py-1.5 px-3 rounded-xl text-xs font-bold text-stone-900 hover:bg-amber-100 flex items-center justify-between"
-                                  >
-                                    <span className="flex items-center gap-2">
-                                      <span className="w-2 h-2 rounded-full bg-amber-600" />
-                                      {parent.name}
-                                    </span>
-                                    {subs.length > 0 && (
-                                      <span className="text-[10px] text-amber-800 font-mono">
-                                        {subs.length} loại con
-                                      </span>
-                                    )}
-                                  </button>
-
-                                  {/* Subcategories (nested inside parent) */}
-                                  {subs.length > 0 && (
-                                    <div className="pl-6 space-y-1 border-l border-amber-300 ml-3">
-                                      {subs.map((sub) => (
-                                        <button
-                                          key={sub.id}
-                                          onClick={() => {
-                                            setSelectedCategoryFilter(sub.id);
-                                            handleNavClick('collection');
-                                          }}
-                                          className="w-full text-left py-1 px-2.5 rounded-lg text-[11px] font-medium text-stone-700 hover:bg-amber-100 hover:text-amber-950 transition-colors"
-                                        >
-                                          ↳ {sub.name}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                        </motion.div>
-                      )}
-                    </div>
-                  );
-                }
-
-                return (
+            {/* Left Slide Panel */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              className="fixed inset-y-0 left-0 w-[82%] max-w-xs sm:max-w-sm bg-white shadow-2xl z-50 flex flex-col justify-between overflow-y-auto border-r border-stone-200"
+            >
+              <div>
+                {/* Drawer Top Branding Header */}
+                <div className="p-4 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
+                  <div>
+                    <h2 className="font-serif-title font-bold text-stone-900 text-base uppercase tracking-wider">
+                      MAISON DE SOIE
+                    </h2>
+                    <p className="text-[10px] text-amber-800 uppercase font-semibold">Danh Mục Trang Phục</p>
+                  </div>
                   <button
-                    key={item.id}
-                    onClick={() => handleNavClick(item.id)}
-                    className={`block w-full text-left py-2.5 text-base font-serif-title tracking-wider ${
-                      activeTab === item.id
-                        ? 'text-[#B8860B] font-bold border-l-2 border-[#D4AF37] pl-3'
-                        : 'text-[#2C2C2C] pl-3 hover:text-[#B8860B]'
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 rounded-full bg-white text-stone-700 hover:bg-amber-100 border border-stone-200"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Vertical Category Links Stacked */}
+                <div className="divide-y divide-stone-200 text-xs sm:text-sm text-stone-800 font-medium">
+                  {/* Home Link */}
+                  <button
+                    onClick={() => handleNavClick('home')}
+                    className={`w-full text-left py-3.5 px-4 uppercase font-bold tracking-wider flex items-center justify-between ${
+                      activeTab === 'home' ? 'bg-amber-50 text-amber-900' : 'hover:bg-stone-50'
                     }`}
                   >
-                    {item.label}
+                    <span>TRANG CHỦ</span>
                   </button>
-                );
-              })}
 
-              <div className="pt-4 border-t border-amber-200/50 flex flex-col gap-3">
+                  {/* All Products Collection Link */}
+                  <button
+                    onClick={() => {
+                      setSelectedCategoryFilter('all');
+                      handleNavClick('collection');
+                    }}
+                    className={`w-full text-left py-3.5 px-4 font-bold flex items-center justify-between ${
+                      activeTab === 'collection' && selectedCategoryFilter === 'all'
+                        ? 'bg-amber-50 text-amber-900'
+                        : 'hover:bg-stone-50'
+                    }`}
+                  >
+                    <span>Tất Cả Bộ Sưu Tập</span>
+                    <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-mono">
+                      {categories.length} danh mục
+                    </span>
+                  </button>
+
+                  {/* Dynamic Category List */}
+                  {parentCats.map((parent) => {
+                    const subs = getSubCats(parent.id);
+                    const isExpanded = expandedCats[parent.id];
+                    const isParentSelected = selectedCategoryFilter === parent.id;
+
+                    return (
+                      <div key={parent.id} className="bg-white">
+                        <div className="flex items-center justify-between py-3.5 px-4 hover:bg-stone-50 transition-colors">
+                          <button
+                            onClick={() => {
+                              setSelectedCategoryFilter(parent.id);
+                              handleNavClick('collection');
+                            }}
+                            className={`flex-1 text-left font-semibold ${
+                              isParentSelected ? 'text-amber-700 font-bold' : 'text-stone-900'
+                            }`}
+                          >
+                            {parent.name}
+                          </button>
+
+                          {subs.length > 0 && (
+                            <button
+                              onClick={(e) => toggleCategoryExpand(parent.id, e)}
+                              className="p-2 -mr-2 text-stone-400 hover:text-stone-900 border-l border-stone-100 pl-3"
+                              title="Xem loại con"
+                            >
+                              <ChevronRight
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  isExpanded ? 'rotate-90 text-amber-600' : ''
+                                }`}
+                              />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Expandable Subcategories */}
+                        {subs.length > 0 && isExpanded && (
+                          <div className="bg-stone-50/80 border-t border-stone-100 divide-y divide-stone-100">
+                            {subs.map((sub) => (
+                              <button
+                                key={sub.id}
+                                onClick={() => {
+                                  setSelectedCategoryFilter(sub.id);
+                                  handleNavClick('collection');
+                                }}
+                                className={`w-full text-left py-2.5 pl-8 pr-4 text-xs font-medium transition-colors ${
+                                  selectedCategoryFilter === sub.id
+                                    ? 'text-amber-700 font-bold bg-amber-100/50'
+                                    : 'text-stone-700 hover:text-amber-950'
+                                }`}
+                              >
+                                ↳ {sub.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Main Pages Links */}
+                  {navItems
+                    .filter((item) => item.id !== 'home' && item.id !== 'collection')
+                    .map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleNavClick(item.id)}
+                        className={`w-full text-left py-3.5 px-4 font-bold ${
+                          activeTab === item.id ? 'bg-amber-50 text-amber-900' : 'hover:bg-stone-50'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Bottom Quick Contact Buttons */}
+              <div className="p-4 bg-stone-50 border-t border-stone-200 space-y-2">
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    openBookingModal();
+                    openQuickContactModal();
                   }}
-                  className="w-full flex items-center justify-center gap-2 gold-gradient-bg text-white py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider shadow-md"
+                  className="w-full flex items-center justify-center gap-2 gold-gradient-bg text-white py-3 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-md"
                 >
-                  <Calendar className="w-4 h-4" />
-                  Đặt Lịch Thử Đồ VIP
+                  <Phone className="w-4 h-4" />
+                  Liên Hệ Ngay
                 </button>
 
                 <a
                   href={`tel:${contactConfig.phone}`}
-                  className="w-full flex items-center justify-center gap-2 border border-[#D4AF37] text-[#B8860B] py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider"
+                  className="w-full flex items-center justify-center gap-2 border border-stone-300 text-stone-800 bg-white py-2.5 rounded-2xl text-xs font-semibold"
                 >
-                  <Phone className="w-4 h-4" />
-                  Gọi Điện Hotline
+                  <Phone className="w-3.5 h-3.5 text-amber-600" />
+                  Hotline: {contactConfig.phoneFormatted}
                 </a>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

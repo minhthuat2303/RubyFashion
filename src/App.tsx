@@ -17,6 +17,8 @@ import { RentalGuidePage } from './pages/RentalGuidePage';
 import { ContactPage } from './pages/ContactPage';
 import { AdminPage } from './pages/AdminPage';
 
+import { QuickContactModal } from './components/common/QuickContactModal';
+
 const MainLayout: React.FC = () => {
   const { activeTab } = useApp();
 
@@ -45,6 +47,7 @@ const MainLayout: React.FC = () => {
       {/* Global Modals & Notifications */}
       <ProductModal />
       <BookingModal />
+      <QuickContactModal />
       <SearchModal />
       <SEOPreviewModal />
       <ToastContainer />

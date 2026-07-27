@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   X,
   Phone,
   MessageCircle,
   MessageSquare,
-  Calendar,
   CheckCircle2,
   Maximize2,
   Ruler,
-  ShieldCheck,
-  ShoppingBag,
   Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,14 +19,14 @@ export const ProductModal: React.FC = () => {
     openProductModal,
     closeProductModal,
     contactConfig,
-    openBookingModal
+    openQuickContactModal
   } = useApp();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string>('');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'features' | 'care'>('desc');
+  const modalContainerRef = useRef<HTMLDivElement>(null);
 
   if (!selectedProduct) return null;
 
@@ -39,12 +36,8 @@ export const ProductModal: React.FC = () => {
 
   const currentImage = images[activeImageIndex] || selectedProduct.mainImage;
 
-  const handleRentalClick = () => {
-    openBookingModal(selectedProduct.sku);
-  };
-
-  const handlePurchaseClick = () => {
-    openBookingModal(selectedProduct.sku);
+  const handleContactClick = () => {
+    openQuickContactModal(selectedProduct.sku);
   };
 
   const formatPrice = (val: number) => {
@@ -94,7 +87,7 @@ export const ProductModal: React.FC = () => {
             <X className="w-5 h-5" />
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 max-h-[90vh] overflow-y-auto">
+          <div ref={modalContainerRef} className="grid grid-cols-1 lg:grid-cols-12 max-h-[90vh] overflow-y-auto">
             {/* Left Col: Photo Gallery & Zoom */}
             <div className="lg:col-span-6 bg-[#F3EEEA] p-6 flex flex-col justify-between relative">
               {/* Main Image Stage */}
@@ -110,7 +103,7 @@ export const ProductModal: React.FC = () => {
                     {selectedProduct.categoryName}
                   </span>
                   {selectedProduct.isNew && (
-                    <span className="bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+                    <span className="bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
                       Mẫu Mới 2026
                     </span>
                   )}
@@ -118,209 +111,150 @@ export const ProductModal: React.FC = () => {
 
                 <button
                   onClick={() => setIsLightboxOpen(true)}
-                  className="absolute bottom-3 right-3 p-2.5 rounded-xl bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black flex items-center gap-1.5 text-xs font-medium backdrop-blur-md"
+                  className="absolute bottom-3 right-3 p-2.5 rounded-full bg-black/60 text-white hover:bg-black hover:scale-110 transition-all shadow-lg"
+                  title="Phóng to ảnh"
                 >
-                  <Maximize2 className="w-4 h-4" /> Xem Toàn Màn Hình
+                  <Maximize2 className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Gallery Thumbnails */}
+              {/* Thumbnails list */}
               {images.length > 1 && (
-                <div className="flex items-center gap-3 mt-4 overflow-x-auto pb-2">
+                <div className="flex items-center gap-3 mt-4 overflow-x-auto pb-1 no-scrollbar">
                   {images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-20 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
+                      className={`relative w-16 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
                         activeImageIndex === idx
-                          ? 'border-[#D4AF37] scale-105 shadow-md'
+                          ? 'border-[#B8860B] scale-105 shadow-md'
                           : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Right Col: Details & Direct Actions */}
+            {/* Right Col: Details & Actions */}
             <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-6">
               <div className="space-y-4">
-                {/* SKU & Category badge */}
-                <div className="flex items-center justify-between text-xs text-amber-900/70 font-mono border-b border-amber-200/50 pb-2">
-                  <span className="bg-amber-100/80 px-2.5 py-1 rounded-md text-amber-900 font-semibold">
-                    MÃ SP: {selectedProduct.sku}
-                  </span>
-                  <span className="text-emerald-700 font-medium inline-flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Trạng thái: {selectedProduct.status}
-                  </span>
+                <div className="space-y-1 border-b border-amber-100 pb-3">
+                  <div className="flex items-center justify-between text-xs text-stone-500 font-mono">
+                    <span>MÃ SKU: {selectedProduct.sku}</span>
+                    <span className="text-emerald-700 font-medium inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {selectedProduct.status}
+                    </span>
+                  </div>
+                  <h2 className="font-serif-title text-2xl sm:text-3xl font-bold text-stone-900 leading-snug">
+                    {selectedProduct.title}
+                  </h2>
                 </div>
 
-                {/* Title */}
-                <h2 className="font-serif-title text-2xl sm:text-3xl text-[#111111] font-bold leading-tight">
-                  {selectedProduct.title}
-                </h2>
-
-                {/* Pricing Box - Rental & Sale */}
-                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/70 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-amber-900/70 uppercase tracking-wider font-medium">Giá Thuê (3 ngày)</p>
-                      <p className="text-2xl font-serif-title font-bold text-[#B8860B]">
-                        {formatPrice(selectedProduct.rentalPrice)}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xs text-stone-500 uppercase tracking-wider font-medium">Giá May / Bán Mới</p>
-                      <p className="text-lg font-serif-title font-semibold text-stone-800">
-                        {formatPrice(selectedProduct.salePrice)}
-                      </p>
-                    </div>
+                {/* Price Tiers */}
+                <div className="bg-amber-50/70 p-4 rounded-2xl border border-amber-200/80 grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[10px] text-amber-800 uppercase tracking-wider font-semibold block">
+                      Giá Thuê (3 ngày)
+                    </span>
+                    <span className="font-serif-title text-xl sm:text-2xl font-bold text-[#B8860B]">
+                      {formatPrice(selectedProduct.rentalPrice)}
+                    </span>
                   </div>
-
-                  {selectedProduct.rentalDeposit && (
-                    <div className="pt-2 border-t border-amber-200/40 text-[11px] text-amber-900/80 flex items-center gap-1.5 font-light">
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                      Tiền cọc khi thuê: {formatPrice(selectedProduct.rentalDeposit)} (Hoàn 100% sau khi trả đồ)
-                    </div>
-                  )}
-                </div>
-
-                {/* Size Swatches */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-stone-800 uppercase tracking-wider">Kích Cỡ Có Sẵn:</span>
-                    <button
-                      onClick={() => openBookingModal(selectedProduct.sku)}
-                      className="text-amber-700 hover:underline flex items-center gap-1 font-medium"
-                    >
-                      <Ruler className="w-3.5 h-3.5" /> Tư vấn đo chuẩn dáng
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProduct.sizes.map((sz) => (
-                      <button
-                        key={sz}
-                        onClick={() => setSelectedSize(sz)}
-                        className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
-                          selectedSize === sz
-                            ? 'bg-[#121212] text-amber-300 border-black shadow-md'
-                            : 'bg-white text-stone-800 border-stone-200 hover:border-amber-400'
-                        }`}
-                      >
-                        {sz}
-                      </button>
-                    ))}
+                  <div>
+                    <span className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold block">
+                      Giá Bán Niêm Yết
+                    </span>
+                    <span className="font-serif-title text-base sm:text-lg font-semibold text-stone-700">
+                      {formatPrice(selectedProduct.salePrice)}
+                    </span>
                   </div>
                 </div>
 
-                {/* Colors */}
-                {selectedProduct.colors && selectedProduct.colors.length > 0 && (
+                {/* Sizes Selector */}
+                {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold text-stone-800 uppercase tracking-wider">Màu Sắc:</p>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <Ruler className="w-3.5 h-3.5 text-[#B8860B]" /> Kích Thước Size
+                      </label>
+                      <span className="text-[11px] text-stone-500 font-light">
+                        Có nhận may đo theo chỉ số riêng
+                      </span>
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProduct.colors.map((c) => (
+                      {selectedProduct.sizes.map((sz) => (
                         <button
-                          key={c}
-                          onClick={() => setSelectedColor(c)}
-                          className={`px-3 py-1.5 rounded-xl text-xs border transition-all ${
-                            selectedColor === c
-                              ? 'bg-amber-100 border-amber-500 font-semibold text-amber-950'
-                              : 'bg-white border-stone-200 text-stone-700 hover:border-amber-300'
+                          key={sz}
+                          onClick={() => setSelectedSize(sz)}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                            selectedSize === sz
+                              ? 'bg-[#121212] text-amber-300 shadow-md scale-105'
+                              : 'bg-stone-100 text-stone-700 hover:bg-amber-100'
                           }`}
                         >
-                          {c}
+                          Size {sz}
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Material & Style Badge */}
-                <div className="p-3 rounded-xl bg-white border border-stone-200/80 text-xs space-y-1.5">
-                  <p className="text-stone-800 font-medium">
-                    <span className="text-amber-900 font-semibold">Chất liệu:</span> {selectedProduct.material}
-                  </p>
-                  <p className="text-stone-800 font-medium">
-                    <span className="text-amber-900 font-semibold">Phong cách & Dịp:</span> {selectedProduct.style} • {selectedProduct.occasion}
-                  </p>
-                </div>
-
                 {/* Tabs for Info */}
                 <div className="space-y-3 pt-2">
-                  <div className="flex border-b border-stone-200 text-xs">
+                  <div className="flex items-center gap-4 border-b border-stone-200 text-xs font-semibold">
                     <button
                       onClick={() => setActiveTab('desc')}
-                      className={`py-2 px-4 font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                      className={`pb-2 transition-colors border-b-2 uppercase tracking-wider ${
                         activeTab === 'desc'
-                          ? 'border-[#D4AF37] text-[#B8860B]'
-                          : 'border-transparent text-stone-500 hover:text-stone-900'
+                          ? 'border-[#B8860B] text-[#B8860B]'
+                          : 'border-transparent text-stone-400 hover:text-stone-700'
                       }`}
                     >
-                      Mô Tả
+                      Mô Tả Sản Phẩm
                     </button>
                     <button
                       onClick={() => setActiveTab('features')}
-                      className={`py-2 px-4 font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+                      className={`pb-2 transition-colors border-b-2 uppercase tracking-wider ${
                         activeTab === 'features'
-                          ? 'border-[#D4AF37] text-[#B8860B]'
-                          : 'border-transparent text-stone-500 hover:text-stone-900'
+                          ? 'border-[#B8860B] text-[#B8860B]'
+                          : 'border-transparent text-stone-400 hover:text-stone-700'
                       }`}
                     >
-                      Nổi Bật
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('care')}
-                      className={`py-2 px-4 font-semibold uppercase tracking-wider border-b-2 transition-colors ${
-                        activeTab === 'care'
-                          ? 'border-[#D4AF37] text-[#B8860B]'
-                          : 'border-transparent text-stone-500 hover:text-stone-900'
-                      }`}
-                    >
-                      Thử Đồ & Bảo Quản
+                      Điểm Nổi Bật
                     </button>
                   </div>
 
-                  <div className="text-xs text-stone-600 leading-relaxed min-h-[80px]">
+                  <div className="text-xs text-stone-600 font-light leading-relaxed min-h-[60px]">
                     {activeTab === 'desc' && <p>{selectedProduct.description}</p>}
                     {activeTab === 'features' && (
-                      <ul className="space-y-1.5 list-disc list-inside text-stone-700">
+                      <ul className="list-disc pl-4 space-y-1">
                         {selectedProduct.highlightFeatures.map((feat, idx) => (
                           <li key={idx}>{feat}</li>
                         ))}
                       </ul>
                     )}
-                    {activeTab === 'care' && <p>{selectedProduct.careInstructions}</p>}
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons Section */}
               <div className="space-y-3 pt-4 border-t border-amber-200/50">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={handleRentalClick}
-                    className="flex items-center justify-center gap-2 gold-gradient-bg text-white py-3 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
-                  >
-                    <Calendar className="w-4 h-4" /> Đặt Thuê Ngay
-                  </button>
-
-                  <button
-                    onClick={handlePurchaseClick}
-                    className="flex items-center justify-center gap-2 bg-[#121212] text-amber-300 border border-amber-500/40 py-3 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider hover:bg-black transition-all"
-                  >
-                    <ShoppingBag className="w-4 h-4" /> Liên Hệ Đặt Mua
-                  </button>
-                </div>
+                <button
+                  onClick={handleContactClick}
+                  className="w-full flex items-center justify-center gap-2 gold-gradient-bg text-white py-3.5 px-4 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all"
+                >
+                  <Phone className="w-4 h-4 text-white" /> Liên Hệ Ngay
+                </button>
 
                 <div className="grid grid-cols-3 gap-2">
                   <a
                     href={`tel:${contactConfig.phone}`}
                     className="flex items-center justify-center gap-1.5 bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-medium hover:bg-emerald-700 transition-colors"
                   >
-                    <Phone className="w-3.5 h-3.5" /> Gọi Hotline
+                    <Phone className="w-3.5 h-3.5" /> Hotline VIP
                   </a>
 
                   <a
@@ -329,14 +263,14 @@ export const ProductModal: React.FC = () => {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-1.5 bg-blue-600 text-white py-2.5 rounded-xl text-xs font-medium hover:bg-blue-700 transition-colors"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" /> Zalo
+                    <MessageCircle className="w-3.5 h-3.5" /> Zalo Chat
                   </a>
 
                   <a
                     href={contactConfig.messengerUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-medium hover:bg-indigo-700 transition-colors"
+                    className="flex items-center justify-center gap-1.5 bg-sky-600 text-white py-2.5 rounded-xl text-xs font-medium hover:bg-sky-700 transition-colors"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> Messenger
                   </a>
@@ -364,6 +298,7 @@ export const ProductModal: React.FC = () => {
                       onClick={() => {
                         setActiveImageIndex(0);
                         openProductModal(prod);
+                        modalContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                       className="group bg-white rounded-2xl p-3 border border-amber-200/60 hover:border-amber-400 hover:shadow-lg cursor-pointer transition-all space-y-2"
                     >
