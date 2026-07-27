@@ -30,7 +30,7 @@ export const CollectionPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedColor, setSelectedColor] = useState<string>('all');
   const [selectedSize, setSelectedSize] = useState<string>('all');
-  const [maxRentalPrice, setMaxRentalPrice] = useState<number>(10000000);
+  const [maxRentalPrice, setMaxRentalPrice] = useState<number>(100000000);
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'popular'>('newest');
   const [gridCols, setGridCols] = useState<3 | 4>(3);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -55,7 +55,16 @@ export const CollectionPage: React.FC = () => {
   // Multi-facet filter calculation with parent & subcategory matching
   const filteredProducts = useMemo(() => {
     const isCategoryMatched = (product: Product, targetFilter: string) => {
-      if (targetFilter === 'all') return true;
+      if (!targetFilter || targetFilter === 'all') return true;
+
+      // Direct match by ID, slug, or Category Name
+      if (
+        product.categoryId === targetFilter ||
+        product.slug === targetFilter ||
+        (product.categoryName && product.categoryName.toLowerCase() === targetFilter.toLowerCase())
+      ) {
+        return true;
+      }
 
       // Find target category object
       const targetCat = categories.find(
@@ -68,8 +77,7 @@ export const CollectionPage: React.FC = () => {
       if (!targetCat) {
         return (
           product.categoryId === targetFilter ||
-          product.slug === targetFilter ||
-          product.categoryName.toLowerCase().includes(targetFilter.toLowerCase())
+          (product.categoryName && product.categoryName.toLowerCase().includes(targetFilter.toLowerCase()))
         );
       }
 
@@ -82,14 +90,15 @@ export const CollectionPage: React.FC = () => {
       const directMatch =
         product.categoryId === targetCat.id ||
         product.slug === targetCat.slug ||
-        product.categoryName.toLowerCase() === targetCat.name.toLowerCase() ||
-        product.categoryName.toLowerCase().includes(targetCat.name.toLowerCase()) ||
-        targetCat.name.toLowerCase().includes(product.categoryName.toLowerCase());
+        (product.categoryName &&
+          (product.categoryName.toLowerCase() === targetCat.name.toLowerCase() ||
+           product.categoryName.toLowerCase().includes(targetCat.name.toLowerCase()) ||
+           targetCat.name.toLowerCase().includes(product.categoryName.toLowerCase())));
 
       const childMatch =
         childIds.includes(product.categoryId) ||
         childSlugs.includes(product.slug) ||
-        childNames.some((cn) => product.categoryName.toLowerCase().includes(cn));
+        (product.categoryName && childNames.some((cn) => product.categoryName.toLowerCase().includes(cn)));
 
       return directMatch || childMatch;
     };

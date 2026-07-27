@@ -32,7 +32,8 @@ import {
   FileSpreadsheet,
   Layers,
   CheckCheck,
-  ChevronRight
+  ChevronRight,
+  SlidersHorizontal
 } from 'lucide-react';
 
 // 10 Curated Color Themes for 1-Click Selection
@@ -151,6 +152,31 @@ export const AdminPage: React.FC = () => {
         return b.id.localeCompare(a.id);
       });
   }, [products, prodSearchQuery, prodCategoryFilter, prodStatusFilter, prodSortBy]);
+
+  // Synchronized Hierarchical Category Tree Options for Admin Form Dropdowns
+  const categoryTreeOptions = useMemo(() => {
+    const parents = categories.filter(
+      (c) => !c.parentId || c.parentId === 'none' || c.parentId === '' || c.level === 1
+    );
+    const options: { id: string; name: string }[] = [];
+
+    parents.forEach((parent) => {
+      options.push({ id: parent.id, name: `📁 ${parent.name}` });
+      const subs = categories.filter((c) => c.parentId === parent.id);
+      subs.forEach((sub) => {
+        options.push({ id: sub.id, name: `   └─ 🏷️ ${sub.name}` });
+      });
+    });
+
+    const mappedIds = options.map((o) => o.id);
+    categories.forEach((c) => {
+      if (!mappedIds.includes(c.id)) {
+        options.push({ id: c.id, name: `📁 ${c.name}` });
+      }
+    });
+
+    return options;
+  }, [categories]);
 
   // Onboarding Guided Tour Mode
   const [isGuideMode, setIsGuideMode] = useState(false);
@@ -501,8 +527,78 @@ export const AdminPage: React.FC = () => {
 
       {/* Main Admin Workspace Grid - Full Widescreen Responsive Layout */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Vertical Sidebar Menu (Col Span 3) - Stacked from top to bottom */}
-        <aside className="lg:col-span-3 xl:col-span-3 bg-white p-3.5 rounded-3xl shadow-sm border-2 border-amber-300/80 sticky top-24 space-y-1.5 z-10">
+        {/* Mobile Navigation Bar & Selector - Optimizes Phone View for Admin */}
+        <div className="lg:hidden col-span-full bg-white p-4 rounded-3xl border-2 border-amber-300 shadow-md space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-900 uppercase flex items-center gap-1.5">
+              <SlidersHorizontal className="w-4 h-4 text-amber-600" />
+              Chức Năng Quản Lý:
+            </span>
+            <select
+              value={activeGroup}
+              onChange={(e) => setActiveGroup(e.target.value as any)}
+              className="px-3 py-2 bg-amber-50 border border-amber-300 rounded-xl font-bold text-stone-900 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            >
+              {[
+                { id: 'dashboard', label: 'Tổng quan' },
+                { id: 'products', label: 'Sản phẩm' },
+                { id: 'categories', label: 'Danh mục đa cấp' },
+                { id: 'services', label: 'Quản lý Dịch vụ' },
+                { id: 'pricing-process', label: 'Bảng giá & Quy trình' },
+                { id: 'contact', label: 'Liên hệ & Showroom' },
+                { id: 'booking', label: 'Lịch hẹn khách hàng' },
+                { id: 'notifications', label: '🔔 Thông báo Realtime' },
+                { id: 'home', label: 'Banner Trang chủ' },
+                { id: 'images', label: 'Kho Hình ảnh' },
+                { id: 'theme', label: 'Giao diện & Màu' },
+                { id: 'promo', label: 'Chương trình Ưu đãi' },
+                { id: 'settings', label: 'Cài đặt Mật khẩu' }
+              ].map((tab) => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {[
+              { id: 'dashboard', label: 'Tổng quan', icon: TrendingUp },
+              { id: 'products', label: 'Sản phẩm', icon: ShoppingBag },
+              { id: 'categories', label: 'Danh mục đa cấp', icon: Layers },
+              { id: 'services', label: 'Quản lý Dịch vụ', icon: Sparkles },
+              { id: 'pricing-process', label: 'Bảng giá & Quy trình', icon: FileSpreadsheet },
+              { id: 'contact', label: 'Liên hệ & Showroom', icon: Phone },
+              { id: 'booking', label: 'Lịch hẹn khách hàng', icon: Calendar },
+              { id: 'notifications', label: '🔔 Thông báo Realtime', icon: Bell },
+              { id: 'home', label: 'Banner Trang chủ', icon: Home },
+              { id: 'images', label: 'Kho Hình ảnh', icon: ImageIcon },
+              { id: 'theme', label: 'Giao diện & Màu', icon: Palette },
+              { id: 'promo', label: 'Chương trình Ưu đãi', icon: Megaphone },
+              { id: 'settings', label: 'Cài đặt Mật khẩu', icon: Settings }
+            ].map((tab) => {
+              const IconComp = tab.icon;
+              const isActive = activeGroup === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveGroup(tab.id as any)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all ${
+                    isActive
+                      ? 'bg-[#121212] text-amber-300 shadow-md'
+                      : 'bg-stone-50 text-stone-700 hover:bg-amber-100'
+                  }`}
+                >
+                  <IconComp className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop Left Column: Vertical Sidebar Menu (Hidden on Mobile View) */}
+        <aside className="hidden lg:block lg:col-span-3 xl:col-span-3 bg-white p-3.5 rounded-3xl shadow-sm border-2 border-amber-300/80 sticky top-24 space-y-1.5 z-10">
           <div className="px-3 py-2 border-b border-amber-100 mb-1 flex items-center justify-between">
             <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
               Danh Mục Quản Lý
@@ -782,9 +878,9 @@ export const AdminPage: React.FC = () => {
                     className="w-full p-2.5 bg-white border border-stone-300 rounded-xl font-bold text-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   >
                     <option value="all">-- Tất Cả Danh Mục --</option>
-                    {categories.map((c) => (
+                    {categoryTreeOptions.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.level && c.level > 1 ? `└─ ` : `📁 `}{c.name}
+                        {c.name}
                       </option>
                     ))}
                   </select>
@@ -1538,9 +1634,9 @@ export const AdminPage: React.FC = () => {
                   className="w-full p-3 bg-amber-50/60 border-2 border-amber-300 rounded-2xl font-bold text-stone-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
                 >
                   <option value="">-- Bấm chọn danh mục sản phẩm --</option>
-                  {categories.map((cat) => (
+                  {categoryTreeOptions.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.level && cat.level > 1 ? `└─ [Danh mục con] ` : `📁 `} {cat.name}
+                      {cat.name}
                     </option>
                   ))}
                 </select>
