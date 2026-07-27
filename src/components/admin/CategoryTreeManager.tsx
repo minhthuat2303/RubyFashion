@@ -13,12 +13,14 @@ export const CategoryTreeManager: React.FC = () => {
   const [newCatDesc, setNewCatDesc] = useState('');
 
   // Get all parent categories (Level 1)
-  const parentCategories = categories.filter(
-    (c) => !c.parentId || c.parentId === 'none' || c.level === 1
-  );
+  const parentCategories = categories.filter((c) => {
+    if (!c.parentId || c.parentId === 'none' || c.parentId === '') return true;
+    const parentExists = categories.some((p) => p.id === c.parentId && p.id !== c.id);
+    return !parentExists;
+  });
 
   const getSubcategories = (parentId: string) => {
-    return categories.filter((c) => c.parentId === parentId);
+    return categories.filter((c) => c.parentId === parentId && c.id !== parentId);
   };
 
   const handleCreateCategory = (e: React.FormEvent) => {

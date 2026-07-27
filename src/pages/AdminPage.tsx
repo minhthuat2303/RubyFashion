@@ -155,14 +155,16 @@ export const AdminPage: React.FC = () => {
 
   // Synchronized Hierarchical Category Tree Options for Admin Form Dropdowns
   const categoryTreeOptions = useMemo(() => {
-    const parents = categories.filter(
-      (c) => !c.parentId || c.parentId === 'none' || c.parentId === '' || c.level === 1
-    );
+    const parents = categories.filter((c) => {
+      if (!c.parentId || c.parentId === 'none' || c.parentId === '') return true;
+      const parentExists = categories.some((p) => p.id === c.parentId && p.id !== c.id);
+      return !parentExists;
+    });
     const options: { id: string; name: string }[] = [];
 
     parents.forEach((parent) => {
       options.push({ id: parent.id, name: `📁 ${parent.name}` });
-      const subs = categories.filter((c) => c.parentId === parent.id);
+      const subs = categories.filter((c) => c.parentId === parent.id && c.id !== parent.id);
       subs.forEach((sub) => {
         options.push({ id: sub.id, name: `   └─ 🏷️ ${sub.name}` });
       });

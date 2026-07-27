@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
+import { Category } from '../../types';
 import {
   Phone,
   Search,
@@ -61,14 +62,16 @@ export const Navbar: React.FC = () => {
     setExpandedCats((prev) => ({ ...prev, [catId]: !prev[catId] }));
   };
 
-  // Robust Parent Category calculation: Includes any top-level category or orphan categories
-  const parentCats = categories.filter((c) => {
-    if (!c.parentId || c.parentId === 'none' || c.parentId === '' || c.level === 1) return true;
-    const parentExists = categories.some((p) => p.id === c.parentId);
-    return !parentExists;
-  });
+  // Strict Hierarchy Resolver: Only categories without valid parentId are parent categories
+  const parentCats = useMemo(() => {
+    return categories.filter((c) => {
+      if (!c.parentId || c.parentId === 'none' || c.parentId === '') return true;
+      const parentExists = categories.some((p) => p.id === c.parentId && p.id !== c.id);
+      return !parentExists;
+    });
+  }, [categories]);
 
-  const getSubCats = (parentId: string) => categories.filter((c) => c.parentId === parentId);
+  const getSubCats = (parentId: string) => categories.filter((c) => c.parentId === parentId && c.id !== parentId);
 
   return (
     <>
@@ -285,7 +288,7 @@ export const Navbar: React.FC = () => {
                         </button>
 
                         {/* Danh sách từng danh mục chính */}
-                        {parentCats.map((parent) => {
+                        {parentCats.map((parent: Category) => {
                           const subs = getSubCats(parent.id);
                           const isParentSelected = selectedCategoryFilter === parent.id;
                           const isSubSelected = subs.some((s) => s.id === selectedCategoryFilter);
