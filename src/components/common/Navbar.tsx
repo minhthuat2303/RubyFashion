@@ -242,8 +242,9 @@ export const Navbar: React.FC = () => {
                   {/* Dynamic Category List */}
                   {parentCats.map((parent) => {
                     const subs = getSubCats(parent.id);
-                    const isExpanded = expandedCats[parent.id];
                     const isParentSelected = selectedCategoryFilter === parent.id;
+                    const isSubSelected = subs.some((s) => s.id === selectedCategoryFilter);
+                    const isExpanded = expandedCats[parent.id] || isParentSelected || isSubSelected;
 
                     return (
                       <div key={parent.id} className="bg-white">
@@ -251,10 +252,11 @@ export const Navbar: React.FC = () => {
                           <button
                             onClick={() => {
                               setSelectedCategoryFilter(parent.id);
+                              setExpandedCats((prev) => ({ ...prev, [parent.id]: true }));
                               handleNavClick('collection');
                             }}
                             className={`flex-1 text-left font-semibold ${
-                              isParentSelected ? 'text-amber-700 font-bold' : 'text-stone-900'
+                              isParentSelected || isSubSelected ? 'text-amber-700 font-bold' : 'text-stone-900'
                             }`}
                           >
                             {parent.name}
@@ -263,9 +265,12 @@ export const Navbar: React.FC = () => {
                           {subs.length > 0 && (
                             <button
                               onClick={(e) => toggleCategoryExpand(parent.id, e)}
-                              className="p-2 -mr-2 text-stone-400 hover:text-stone-900 border-l border-stone-100 pl-3"
-                              title="Xem loại con"
+                              className="p-2 -mr-2 text-stone-400 hover:text-stone-900 border-l border-stone-100 pl-3 flex items-center gap-1 text-[11px]"
+                              title="Ẩn/Hiện loại con"
                             >
+                              <span className="text-[10px] text-amber-800 font-mono">
+                                ({subs.length})
+                              </span>
                               <ChevronRight
                                 className={`w-4 h-4 transition-transform duration-200 ${
                                   isExpanded ? 'rotate-90 text-amber-600' : ''
@@ -275,9 +280,9 @@ export const Navbar: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Expandable Subcategories */}
+                        {/* Nested Subcategories (Only displayed when user selects or expands parent collection) */}
                         {subs.length > 0 && isExpanded && (
-                          <div className="bg-stone-50/80 border-t border-stone-100 divide-y divide-stone-100">
+                          <div className="bg-amber-50/50 border-t border-amber-100 divide-y divide-amber-100/60">
                             {subs.map((sub) => (
                               <button
                                 key={sub.id}
@@ -287,8 +292,8 @@ export const Navbar: React.FC = () => {
                                 }}
                                 className={`w-full text-left py-2.5 pl-8 pr-4 text-xs font-medium transition-colors ${
                                   selectedCategoryFilter === sub.id
-                                    ? 'text-amber-700 font-bold bg-amber-100/50'
-                                    : 'text-stone-700 hover:text-amber-950'
+                                    ? 'text-amber-900 font-bold bg-amber-200/60'
+                                    : 'text-stone-700 hover:text-amber-950 hover:bg-amber-100/40'
                                 }`}
                               >
                                 ↳ {sub.name}

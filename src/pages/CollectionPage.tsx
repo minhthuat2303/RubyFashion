@@ -643,25 +643,32 @@ export const CollectionPage: React.FC = () => {
                     const subs = getSubCats(parent.id);
                     const isParentActive = selectedCategoryFilter === parent.id;
                     const isSubActive = subs.some((s) => s.id === selectedCategoryFilter);
+                    const isExpanded = isParentActive || isSubActive || expandedCats[parent.id];
 
                     return (
                       <div key={parent.id} className="space-y-1">
                         <button
                           onClick={() => {
                             setSelectedCategoryFilter(parent.id);
-                            setIsMobileFilterOpen(false);
+                            setExpandedCats((prev) => ({ ...prev, [parent.id]: !prev[parent.id] }));
                           }}
-                          className={`block w-full text-left px-3.5 py-2.5 rounded-xl transition-all font-bold ${
+                          className={`block w-full text-left px-3.5 py-2.5 rounded-xl transition-all font-bold flex items-center justify-between ${
                             isParentActive || isSubActive
                               ? 'bg-[#121212] text-amber-300 shadow'
                               : 'bg-stone-50 text-stone-900 hover:bg-amber-100'
                           }`}
                         >
-                          📁 {parent.name}
+                          <span>📁 {parent.name}</span>
+                          {subs.length > 0 && (
+                            <span className="text-[10px] opacity-80 font-normal">
+                              {isExpanded ? '▲ Thu gọn' : `▼ ${subs.length} danh mục con`}
+                            </span>
+                          )}
                         </button>
 
-                        {subs.length > 0 && (
-                          <div className="pl-4 space-y-1 border-l-2 border-amber-300/60 ml-2">
+                        {/* Nested Subcategories - Only visible when user selects this collection */}
+                        {subs.length > 0 && isExpanded && (
+                          <div className="pl-4 space-y-1 border-l-2 border-amber-300/60 ml-2 py-1">
                             {subs.map((sub) => (
                               <button
                                 key={sub.id}
@@ -671,7 +678,7 @@ export const CollectionPage: React.FC = () => {
                                 }}
                                 className={`block w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium ${
                                   selectedCategoryFilter === sub.id
-                                    ? 'bg-amber-500 text-stone-950 font-bold'
+                                    ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
                                     : 'text-stone-700 hover:bg-amber-50'
                                 }`}
                               >
