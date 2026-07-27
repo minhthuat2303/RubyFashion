@@ -14,7 +14,7 @@ import {
   Folder,
   ChevronDown
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '../types';
 
 export const CollectionPage: React.FC = () => {
@@ -487,8 +487,8 @@ export const CollectionPage: React.FC = () => {
             </div>
           </aside>
 
-          {/* Right Product Grid */}
-          <main className={`lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 ${gridCols === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
+          {/* Right Product Grid - 2 columns on mobile, compact cards */}
+          <main className={`lg:col-span-9 grid grid-cols-2 sm:grid-cols-2 ${gridCols === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-3 sm:gap-6`}>
             {filteredProducts.length === 0 ? (
               <div className="col-span-full py-16 text-center space-y-4 bg-white rounded-3xl p-8 border border-stone-200 shadow-md">
                 <p className="font-serif-title text-2xl text-stone-800 font-bold">
@@ -512,7 +512,7 @@ export const CollectionPage: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="group bg-white rounded-3xl overflow-hidden shadow-xl border border-amber-200/50 hover:border-amber-400 transition-all duration-300 flex flex-col justify-between"
+                  className="group bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-md sm:shadow-xl border border-amber-200/50 hover:border-amber-400 transition-all duration-300 flex flex-col justify-between"
                 >
                   <div
                     onClick={() => openProductModal(product)}
@@ -524,18 +524,18 @@ export const CollectionPage: React.FC = () => {
                       className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                     />
 
-                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
-                      <span className="px-2.5 py-0.5 rounded-full bg-black/80 text-amber-300 text-[10px] font-semibold uppercase tracking-wider backdrop-blur-md">
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10 flex flex-col gap-1">
+                      <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-black/80 text-amber-300 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider backdrop-blur-md">
                         {product.categoryName}
                       </span>
                       {product.isNew && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                        <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow">
                           Hot 2026
                         </span>
                       )}
                     </div>
 
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-4">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:flex flex-col items-center justify-center gap-2.5 p-4">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -558,32 +558,32 @@ export const CollectionPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-5 space-y-2.5 bg-white">
-                    <div className="flex items-center justify-between text-[11px] text-stone-500 font-mono">
+                  <div className="p-3 sm:p-5 space-y-1.5 sm:space-y-2.5 bg-white">
+                    <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-stone-500 font-mono">
                       <span>MÃ: {product.sku}</span>
-                      <span className="text-emerald-700 font-medium inline-flex items-center gap-1">
+                      <span className="text-emerald-700 font-medium hidden sm:inline-flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" /> {product.status}
                       </span>
                     </div>
 
                     <h3
                       onClick={() => openProductModal(product)}
-                      className="font-serif-title text-base font-bold text-stone-900 line-clamp-1 hover:text-[#B8860B] transition-colors cursor-pointer"
+                      className="font-serif-title text-xs sm:text-base font-bold text-stone-900 line-clamp-1 hover:text-[#B8860B] transition-colors cursor-pointer"
                     >
                       {product.title}
                     </h3>
 
-                    <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
+                    <div className="pt-1.5 sm:pt-2 border-t border-stone-100 flex items-center justify-between">
                       <div>
-                        <span className="text-[9px] text-stone-400 uppercase tracking-wider block">Giá Thuê</span>
-                        <span className="font-serif-title font-bold text-base text-[#B8860B]">
+                        <span className="text-[8px] sm:text-[9px] text-stone-400 uppercase tracking-wider block">Giá Thuê</span>
+                        <span className="font-serif-title font-bold text-xs sm:text-base text-[#B8860B]">
                           {product.rentalPrice.toLocaleString('vi-VN')} đ
                         </span>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-[9px] text-stone-400 uppercase tracking-wider block">Giá Bán</span>
-                        <span className="font-serif-title font-medium text-xs text-stone-600">
+                        <span className="text-[8px] sm:text-[9px] text-stone-400 uppercase tracking-wider block">Giá Bán</span>
+                        <span className="font-serif-title font-medium text-[10px] sm:text-xs text-stone-600">
                           {product.salePrice.toLocaleString('vi-VN')} đ
                         </span>
                       </div>
@@ -595,6 +595,134 @@ export const CollectionPage: React.FC = () => {
           </main>
         </div>
       </div>
+
+      {/* Floating Mobile Category & Filter Popup Modal */}
+      <AnimatePresence>
+        {isMobileFilterOpen && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-amber-300/80 p-5 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between border-b border-amber-200/80 pb-3 sticky top-0 bg-white z-10">
+                <h3 className="font-serif-title font-bold text-stone-900 text-sm sm:text-base flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-[#B8860B]" />
+                  Danh Mục & Bộ Lọc Trang Phục
+                </h3>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="p-1 rounded-full bg-stone-100 text-stone-700 hover:bg-amber-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Categories Tree list */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-stone-900 uppercase tracking-wider block">
+                  Chọn Danh Mục Phục Trang
+                </label>
+                <div className="space-y-1.5 text-xs max-h-60 overflow-y-auto pr-1">
+                  <button
+                    onClick={() => {
+                      setSelectedCategoryFilter('all');
+                      setIsMobileFilterOpen(false);
+                    }}
+                    className={`block w-full text-left px-3.5 py-2.5 rounded-xl transition-all font-bold ${
+                      selectedCategoryFilter === 'all'
+                        ? 'bg-[#121212] text-amber-300 shadow'
+                        : 'bg-stone-50 text-stone-800 hover:bg-amber-100'
+                    }`}
+                  >
+                    Tất Cả Sản Phẩm ({products.length})
+                  </button>
+
+                  {parentCats.map((parent) => {
+                    const subs = getSubCats(parent.id);
+                    const isParentActive = selectedCategoryFilter === parent.id;
+                    const isSubActive = subs.some((s) => s.id === selectedCategoryFilter);
+
+                    return (
+                      <div key={parent.id} className="space-y-1">
+                        <button
+                          onClick={() => {
+                            setSelectedCategoryFilter(parent.id);
+                            setIsMobileFilterOpen(false);
+                          }}
+                          className={`block w-full text-left px-3.5 py-2.5 rounded-xl transition-all font-bold ${
+                            isParentActive || isSubActive
+                              ? 'bg-[#121212] text-amber-300 shadow'
+                              : 'bg-stone-50 text-stone-900 hover:bg-amber-100'
+                          }`}
+                        >
+                          📁 {parent.name}
+                        </button>
+
+                        {subs.length > 0 && (
+                          <div className="pl-4 space-y-1 border-l-2 border-amber-300/60 ml-2">
+                            {subs.map((sub) => (
+                              <button
+                                key={sub.id}
+                                onClick={() => {
+                                  setSelectedCategoryFilter(sub.id);
+                                  setIsMobileFilterOpen(false);
+                                }}
+                                className={`block w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium ${
+                                  selectedCategoryFilter === sub.id
+                                    ? 'bg-amber-500 text-stone-950 font-bold'
+                                    : 'text-stone-700 hover:bg-amber-50'
+                                }`}
+                              >
+                                ↳ {sub.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Price Filter */}
+              <div className="space-y-1.5 pt-3 border-t border-amber-100">
+                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider block">
+                  Giá Thuê Tối Đa: {maxRentalPrice.toLocaleString('vi-VN')} đ
+                </label>
+                <input
+                  type="range"
+                  min="500000"
+                  max="15000000"
+                  step="500000"
+                  value={maxRentalPrice}
+                  onChange={(e) => setMaxRentalPrice(Number(e.target.value))}
+                  className="w-full accent-[#D4AF37] cursor-pointer"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  onClick={() => {
+                    resetFilters();
+                    setIsMobileFilterOpen(false);
+                  }}
+                  className="w-1/3 py-3 bg-stone-100 text-stone-800 font-bold rounded-2xl text-xs uppercase"
+                >
+                  Xóa lọc
+                </button>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="w-2/3 py-3 gold-gradient-bg text-stone-950 font-bold rounded-2xl text-xs uppercase tracking-wider shadow-lg"
+                >
+                  Xem ({filteredProducts.length} Mẫu)
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

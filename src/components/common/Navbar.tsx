@@ -7,9 +7,7 @@ import {
   Menu,
   X,
   Sparkles,
-  ShieldCheck,
   Clock,
-  Code,
   ChevronDown,
   Layers
 } from 'lucide-react';
@@ -23,10 +21,7 @@ export const Navbar: React.FC = () => {
     setSelectedCategoryFilter,
     contactConfig,
     openBookingModal,
-    setIsSearchModalOpen,
-    setIsSEOModalOpen,
-    isAdminLoggedIn,
-    logoutAdmin
+    setIsSearchModalOpen
   } = useApp();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -80,41 +75,6 @@ export const Navbar: React.FC = () => {
               <Phone className="w-3.5 h-3.5 text-amber-400" />
               Hotline VIP: <span className="text-amber-300 font-semibold">{contactConfig.phoneFormatted}</span>
             </a>
-            
-            <button
-              onClick={() => setIsSEOModalOpen(true)}
-              className="inline-flex items-center gap-1 hover:text-amber-300 transition-colors bg-white/10 px-2 py-0.5 rounded text-[11px] border border-amber-400/30"
-              title="Xem Kiến Trúc Clean Architecture, DB Schema & SEO Spec"
-            >
-              <Code className="w-3 h-3 text-amber-400" /> Spec Tech & SEO
-            </button>
-
-            {isAdminLoggedIn ? (
-              <div className="flex items-center gap-2 border-l border-amber-500/30 pl-3">
-                <span className="inline-flex items-center gap-1 text-emerald-400 text-[11px] font-medium">
-                  <ShieldCheck className="w-3 h-3" /> Admin Auth Active
-                </span>
-                <button
-                  onClick={() => setActiveTab('admin')}
-                  className="hover:text-amber-200 underline text-[11px]"
-                >
-                  Trang Quản Trị
-                </button>
-                <button
-                  onClick={logoutAdmin}
-                  className="text-rose-400 hover:text-rose-300 text-[11px]"
-                >
-                  (Thoát)
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setActiveTab('admin')}
-                className="hover:text-amber-300 text-[11px] opacity-80 hover:opacity-100 transition-opacity border-l border-amber-500/30 pl-3"
-              >
-                Khu Vực Quản Trị
-              </button>
-            )}
           </div>
         </div>
       </div>
