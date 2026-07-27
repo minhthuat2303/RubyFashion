@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCollectionMenuOpen, setIsCollectionMenuOpen] = useState(false);
+  const [isCollectionMenuOpen, setIsCollectionMenuOpen] = useState(true);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -61,7 +61,13 @@ export const Navbar: React.FC = () => {
     setExpandedCats((prev) => ({ ...prev, [catId]: !prev[catId] }));
   };
 
-  const parentCats = categories.filter((c) => !c.parentId || c.parentId === 'none' || c.level === 1);
+  // Robust Parent Category calculation: Includes any top-level category or orphan categories
+  const parentCats = categories.filter((c) => {
+    if (!c.parentId || c.parentId === 'none' || c.parentId === '' || c.level === 1) return true;
+    const parentExists = categories.some((p) => p.id === c.parentId);
+    return !parentExists;
+  });
+
   const getSubCats = (parentId: string) => categories.filter((c) => c.parentId === parentId);
 
   return (

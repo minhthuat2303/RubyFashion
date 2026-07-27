@@ -36,10 +36,12 @@ export const CollectionPage: React.FC = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
-  // Group categories into Parent (Level 1) vs Child (Level 2)
-  const parentCats = categories.filter(
-    (c) => !c.parentId || c.parentId === 'none' || c.level === 1
-  );
+  // Group categories into Parent (Level 1) vs Child (Level 2) - Robust handling for newly added categories
+  const parentCats = categories.filter((c) => {
+    if (!c.parentId || c.parentId === 'none' || c.parentId === '' || c.level === 1) return true;
+    const parentExists = categories.some((p) => p.id === c.parentId);
+    return !parentExists;
+  });
   const getSubCats = (parentId: string) => categories.filter((c) => c.parentId === parentId);
 
   const toggleExpandCat = (catId: string) => {
