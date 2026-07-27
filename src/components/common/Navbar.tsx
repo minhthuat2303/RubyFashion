@@ -15,6 +15,7 @@ export const Navbar: React.FC = () => {
   const {
     activeTab,
     setActiveTab,
+    products,
     categories,
     selectedCategoryFilter,
     setSelectedCategoryFilter,
@@ -25,6 +26,7 @@ export const Navbar: React.FC = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollectionMenuOpen, setIsCollectionMenuOpen] = useState(false);
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -211,101 +213,138 @@ export const Navbar: React.FC = () => {
 
                 {/* Vertical Category Links Stacked */}
                 <div className="divide-y divide-stone-200 text-xs sm:text-sm text-stone-800 font-medium">
-                  {/* Home Link */}
+                  {/* 1. TRANG CHỦ */}
                   <button
                     onClick={() => handleNavClick('home')}
                     className={`w-full text-left py-3.5 px-4 uppercase font-bold tracking-wider flex items-center justify-between ${
-                      activeTab === 'home' ? 'bg-amber-50 text-amber-900' : 'hover:bg-stone-50'
+                      activeTab === 'home' ? 'bg-amber-50 text-amber-900 font-bold' : 'hover:bg-stone-50 text-stone-900'
                     }`}
                   >
                     <span>TRANG CHỦ</span>
                   </button>
 
-                  {/* All Products Collection Link */}
-                  <button
-                    onClick={() => {
-                      setSelectedCategoryFilter('all');
-                      handleNavClick('collection');
-                    }}
-                    className={`w-full text-left py-3.5 px-4 font-bold flex items-center justify-between ${
-                      activeTab === 'collection' && selectedCategoryFilter === 'all'
-                        ? 'bg-amber-50 text-amber-900'
-                        : 'hover:bg-stone-50'
-                    }`}
-                  >
-                    <span>Tất Cả Bộ Sưu Tập</span>
-                    <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-mono">
-                      {categories.length} danh mục
-                    </span>
-                  </button>
+                  {/* 2. BỘ SƯU TẬP (Lồng tất cả các danh mục khoanh đỏ vào bên trong) */}
+                  <div className="bg-white">
+                    <div className={`flex items-center justify-between py-3.5 px-4 transition-colors ${
+                      activeTab === 'collection' ? 'bg-amber-50/70' : 'hover:bg-stone-50'
+                    }`}>
+                      <button
+                        onClick={() => {
+                          setSelectedCategoryFilter('all');
+                          setIsCollectionMenuOpen(!isCollectionMenuOpen);
+                          handleNavClick('collection');
+                        }}
+                        className={`flex-1 text-left uppercase font-bold tracking-wider flex items-center justify-between ${
+                          activeTab === 'collection' ? 'text-[#B8860B]' : 'text-stone-900'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span>BỘ SƯU TẬP</span>
+                          <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full font-mono font-normal">
+                            {categories.length} danh mục
+                          </span>
+                        </span>
+                      </button>
 
-                  {/* Dynamic Category List */}
-                  {parentCats.map((parent) => {
-                    const subs = getSubCats(parent.id);
-                    const isParentSelected = selectedCategoryFilter === parent.id;
-                    const isSubSelected = subs.some((s) => s.id === selectedCategoryFilter);
-                    const isExpanded = expandedCats[parent.id] || isParentSelected || isSubSelected;
+                      <button
+                        onClick={() => setIsCollectionMenuOpen(!isCollectionMenuOpen)}
+                        className="p-1.5 text-stone-500 hover:text-stone-900 border-l border-stone-100 pl-3"
+                        title="Mở/Thu gọn danh mục bộ sưu tập"
+                      >
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            isCollectionMenuOpen || activeTab === 'collection' ? 'rotate-90 text-amber-600' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
 
-                    return (
-                      <div key={parent.id} className="bg-white">
-                        <div className="flex items-center justify-between py-3.5 px-4 hover:bg-stone-50 transition-colors">
-                          <button
-                            onClick={() => {
-                              setSelectedCategoryFilter(parent.id);
-                              setExpandedCats((prev) => ({ ...prev, [parent.id]: true }));
-                              handleNavClick('collection');
-                            }}
-                            className={`flex-1 text-left font-semibold ${
-                              isParentSelected || isSubSelected ? 'text-amber-700 font-bold' : 'text-stone-900'
-                            }`}
-                          >
-                            {parent.name}
-                          </button>
+                    {/* Danh sách các danh mục khoanh đỏ chỉ hiển thị khi chọn/mở "BỘ SƯU TẬP" */}
+                    {(isCollectionMenuOpen || activeTab === 'collection') && (
+                      <div className="pl-3 bg-amber-50/40 border-l-2 border-amber-300 divide-y divide-amber-100/80">
+                        {/* Tất cả sản phẩm */}
+                        <button
+                          onClick={() => {
+                            setSelectedCategoryFilter('all');
+                            handleNavClick('collection');
+                          }}
+                          className={`w-full text-left py-2.5 px-3 text-xs font-bold transition-colors flex items-center justify-between ${
+                            selectedCategoryFilter === 'all'
+                              ? 'text-amber-900 bg-amber-200/60 font-bold'
+                              : 'text-stone-800 hover:bg-amber-100/50'
+                          }`}
+                        >
+                          <span>Tất Cả Sản Phẩm</span>
+                          <span className="text-[10px] text-amber-700">({products.length})</span>
+                        </button>
 
-                          {subs.length > 0 && (
-                            <button
-                              onClick={(e) => toggleCategoryExpand(parent.id, e)}
-                              className="p-2 -mr-2 text-stone-400 hover:text-stone-900 border-l border-stone-100 pl-3 flex items-center gap-1 text-[11px]"
-                              title="Ẩn/Hiện loại con"
-                            >
-                              <span className="text-[10px] text-amber-800 font-mono">
-                                ({subs.length})
-                              </span>
-                              <ChevronRight
-                                className={`w-4 h-4 transition-transform duration-200 ${
-                                  isExpanded ? 'rotate-90 text-amber-600' : ''
-                                }`}
-                              />
-                            </button>
-                          )}
-                        </div>
+                        {/* Danh sách từng danh mục chính */}
+                        {parentCats.map((parent) => {
+                          const subs = getSubCats(parent.id);
+                          const isParentSelected = selectedCategoryFilter === parent.id;
+                          const isSubSelected = subs.some((s) => s.id === selectedCategoryFilter);
+                          const isExpanded = expandedCats[parent.id] || isParentSelected || isSubSelected;
 
-                        {/* Nested Subcategories (Only displayed when user selects or expands parent collection) */}
-                        {subs.length > 0 && isExpanded && (
-                          <div className="bg-amber-50/50 border-t border-amber-100 divide-y divide-amber-100/60">
-                            {subs.map((sub) => (
-                              <button
-                                key={sub.id}
-                                onClick={() => {
-                                  setSelectedCategoryFilter(sub.id);
-                                  handleNavClick('collection');
-                                }}
-                                className={`w-full text-left py-2.5 pl-8 pr-4 text-xs font-medium transition-colors ${
-                                  selectedCategoryFilter === sub.id
-                                    ? 'text-amber-900 font-bold bg-amber-200/60'
-                                    : 'text-stone-700 hover:text-amber-950 hover:bg-amber-100/40'
-                                }`}
-                              >
-                                ↳ {sub.name}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                          return (
+                            <div key={parent.id} className="bg-transparent">
+                              <div className="flex items-center justify-between py-2.5 px-3 hover:bg-amber-100/50 transition-colors">
+                                <button
+                                  onClick={() => {
+                                    setSelectedCategoryFilter(parent.id);
+                                    setExpandedCats((prev) => ({ ...prev, [parent.id]: !prev[parent.id] }));
+                                    handleNavClick('collection');
+                                  }}
+                                  className={`flex-1 text-left text-xs font-semibold ${
+                                    isParentSelected || isSubSelected ? 'text-amber-900 font-bold' : 'text-stone-900'
+                                  }`}
+                                >
+                                  📁 {parent.name}
+                                </button>
+
+                                {subs.length > 0 && (
+                                  <button
+                                    onClick={(e) => toggleCategoryExpand(parent.id, e)}
+                                    className="p-1 text-stone-400 hover:text-stone-900 flex items-center gap-1 text-[10px]"
+                                  >
+                                    <span>({subs.length})</span>
+                                    <ChevronRight
+                                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                        isExpanded ? 'rotate-90 text-amber-600' : ''
+                                      }`}
+                                    />
+                                  </button>
+                                )}
+                              </div>
+
+                              {/* Danh mục con nếu có */}
+                              {subs.length > 0 && isExpanded && (
+                                <div className="pl-6 bg-white/60 divide-y divide-stone-100">
+                                  {subs.map((sub) => (
+                                    <button
+                                      key={sub.id}
+                                      onClick={() => {
+                                        setSelectedCategoryFilter(sub.id);
+                                        handleNavClick('collection');
+                                      }}
+                                      className={`w-full text-left py-2 pl-4 pr-3 text-[11px] font-medium transition-colors ${
+                                        selectedCategoryFilter === sub.id
+                                          ? 'text-amber-900 font-bold bg-amber-200/70'
+                                          : 'text-stone-700 hover:text-amber-950 hover:bg-amber-50'
+                                      }`}
+                                    >
+                                      ↳ {sub.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
 
-                  {/* Main Pages Links */}
+                  {/* 3. DỊCH VỤ, BẢNG GIÁ, VỀ CHÚNG TÔI, LIÊN HỆ */}
                   {navItems
                     .filter((item) => item.id !== 'home' && item.id !== 'collection')
                     .map((item) => (
